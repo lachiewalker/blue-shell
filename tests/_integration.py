@@ -400,10 +400,10 @@ class TestShellGpt(TestCase):
     def test_color_output(self):
         color = cfg.get("DEFAULT_COLOR")
         role = SystemRole.get("ShellGPT")
-        handler = Handler(role=role)
+        handler = Handler(role=role, markdown=False)
         assert handler.color == color
         os.environ["DEFAULT_COLOR"] = "red"
-        handler = Handler(role=role)
+        handler = Handler(role=role, markdown=False)
         assert handler.color == "red"
 
     def test_simple_stdin(self):

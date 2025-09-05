@@ -1,9 +1,10 @@
-from typing import Any
+from typing import Any, Optional
 
 import typer
 from rich import print as rich_print
 from rich.rule import Rule
 
+from ..llm_client import LLMClient
 from ..role import DefaultRoles, SystemRole
 from ..utils import run_command
 from .chat_handler import ChatHandler
@@ -11,8 +12,14 @@ from .default_handler import DefaultHandler
 
 
 class ReplHandler(ChatHandler):
-    def __init__(self, chat_id: str, role: SystemRole, markdown: bool) -> None:
-        super().__init__(chat_id, role, markdown)
+    def __init__(
+        self,
+        chat_id: str,
+        role: SystemRole,
+        markdown: bool,
+        client: Optional[LLMClient] = None,
+    ) -> None:
+        super().__init__(chat_id, role, markdown, client)
 
     @classmethod
     def _get_multiline_input(cls) -> str:

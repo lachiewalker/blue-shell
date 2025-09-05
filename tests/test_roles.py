@@ -8,7 +8,7 @@ from sgpt.role import SystemRole
 from .utils import app, cmd_args, comp_args, mock_comp, runner
 
 
-@patch("sgpt.handlers.handler.completion")
+@patch("sgpt.llm_client.LLMClient.completion")
 def test_role(completion):
     completion.return_value = mock_comp('{"foo": "bar"}')
     path = Path(cfg.get("ROLE_STORAGE_PATH")) / "json_gen_test.json"

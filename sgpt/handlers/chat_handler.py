@@ -8,6 +8,7 @@ from rich.console import Console
 from rich.markdown import Markdown
 
 from ..config import cfg
+from ..llm_client import LLMClient
 from ..role import DefaultRoles, SystemRole
 from ..utils import option_callback
 from .handler import Handler
@@ -98,8 +99,14 @@ class ChatSession:
 class ChatHandler(Handler):
     chat_session = ChatSession(CHAT_CACHE_LENGTH, CHAT_CACHE_PATH)
 
-    def __init__(self, chat_id: str, role: SystemRole, markdown: bool) -> None:
-        super().__init__(role, markdown)
+    def __init__(
+        self,
+        chat_id: str,
+        role: SystemRole,
+        markdown: bool,
+        client: Optional[LLMClient] = None,
+    ) -> None:
+        super().__init__(role, markdown, client)
         self.chat_id = chat_id
         self.role = role
 

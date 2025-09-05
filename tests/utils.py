@@ -6,10 +6,23 @@ from openai.types.chat.chat_completion_chunk import Choice as StreamChoice
 from openai.types.chat.chat_completion_chunk import ChoiceDelta
 from typer.testing import CliRunner
 
+
+class SGPTRunner(CliRunner):
+    """CliRunner providing empty stdin by default."""
+
+    def invoke(self, *args, **kwargs):  # type: ignore[override]
+        input_text = kwargs.get("input", "")
+        if "__sgpt__eof__" not in input_text:
+            if not input_text.endswith("\n"):
+                input_text += "\n"
+            input_text += "__sgpt__eof__\n"
+        kwargs["input"] = input_text
+        return super().invoke(*args, **kwargs)
+
 from sgpt import main
 from sgpt.config import cfg
 
-runner = CliRunner()
+runner = SGPTRunner()
 app = typer.Typer()
 app.command()(main)
 
