@@ -5,7 +5,7 @@ from rich import print as rich_print
 from rich.rule import Rule
 
 from ..role import DefaultRoles, SystemRole
-from ..utils import run_command
+from ..shell import run_command
 from .chat_handler import ChatHandler
 from .default_handler import DefaultHandler
 

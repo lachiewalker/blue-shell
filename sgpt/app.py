@@ -16,12 +16,10 @@ from sgpt.handlers.default_handler import DefaultHandler
 from sgpt.handlers.repl_handler import ReplHandler
 from sgpt.llm_functions.init_functions import install_functions as inst_funcs
 from sgpt.role import DefaultRoles, SystemRole
-from sgpt.utils import (
-    get_edited_prompt,
-    get_sgpt_version,
-    install_shell_integration,
-    run_command,
-)
+from sgpt.editor import get_edited_prompt
+from sgpt.utils.integration import install_shell_integration
+from sgpt.shell import run_command
+from sgpt.utils import get_sgpt_version
 
 
 def main(
