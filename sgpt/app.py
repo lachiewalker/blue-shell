@@ -14,6 +14,7 @@ from sgpt.function import get_openai_schemas
 from sgpt.handlers.chat_handler import ChatHandler
 from sgpt.handlers.default_handler import DefaultHandler
 from sgpt.handlers.repl_handler import ReplHandler
+from sgpt.chat_session import list_chat_ids, show_chat_messages
 from sgpt.llm_functions.init_functions import install_functions as inst_funcs
 from sgpt.role import DefaultRoles, SystemRole
 from sgpt.utils import (
@@ -115,7 +116,7 @@ def main(
         "--list-chats",
         "-lc",
         help="List all existing chat ids.",
-        callback=ChatHandler.list_ids,
+        callback=list_chat_ids,
         rich_help_panel="Chat Options",
     ),
     role: str = typer.Option(
@@ -184,7 +185,7 @@ def main(
             pass
 
     if show_chat:
-        ChatHandler.show_messages(show_chat, md)
+        show_chat_messages(show_chat, md)
 
     if sum((shell, describe_shell, code)) > 1:
         raise BadArgumentUsage(

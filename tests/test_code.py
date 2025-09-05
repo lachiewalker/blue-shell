@@ -3,6 +3,7 @@ from unittest.mock import patch
 
 from sgpt.config import cfg
 from sgpt.role import DefaultRoles, SystemRole
+from sgpt.chat_session import invalidate_chat
 
 from .utils import app, cmd_args, comp_args, mock_comp, runner
 
@@ -59,7 +60,7 @@ def test_code_chat(completion):
     ]
     chat_name = "_test"
     chat_path = Path(cfg.get("CHAT_CACHE_PATH")) / chat_name
-    chat_path.unlink(missing_ok=True)
+    invalidate_chat(chat_name)
 
     args = {"prompt": "print hello", "--code": True, "--chat": chat_name}
     result = runner.invoke(app, cmd_args(**args))
@@ -88,7 +89,7 @@ def test_code_chat(completion):
     result = runner.invoke(app, cmd_args(**args))
     assert result.exit_code == 2
     assert "Error" in result.stdout
-    chat_path.unlink()
+    invalidate_chat(chat_name)
     # TODO: Code chat can be recalled without --code option.
 
 
@@ -100,7 +101,7 @@ def test_code_repl(completion):
     ]
     chat_name = "_test"
     chat_path = Path(cfg.get("CHAT_CACHE_PATH")) / chat_name
-    chat_path.unlink(missing_ok=True)
+    invalidate_chat(chat_name)
 
     args = {"--repl": chat_name, "--code": True}
     inputs = ["__sgpt__eof__", "print hello", "also print world", "exit()"]

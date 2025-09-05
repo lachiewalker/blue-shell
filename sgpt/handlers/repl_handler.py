@@ -8,6 +8,7 @@ from ..role import DefaultRoles, SystemRole
 from ..utils import run_command
 from .chat_handler import ChatHandler
 from .default_handler import DefaultHandler
+from ..chat_session import show_chat_messages
 
 
 class ReplHandler(ChatHandler):
@@ -24,7 +25,7 @@ class ReplHandler(ChatHandler):
     def handle(self, init_prompt: str, **kwargs: Any) -> None:  # type: ignore
         if self.initiated:
             rich_print(Rule(title="Chat History", style="bold magenta"))
-            self.show_messages(self.chat_id, self.markdown)
+            show_chat_messages(self.chat_id, self.markdown)
             rich_print(Rule(style="bold magenta"))
 
         info_message = (
