@@ -380,7 +380,7 @@ This is just some examples of what we can do using OpenAI GPT models, I'm sure y
 ### Runtime configuration file
 You can setup some parameters in runtime configuration file `~/.config/shell_gpt/.sgptrc`:
 ```text
-# API key, also it is possible to define OPENAI_API_KEY env.
+# API key, set via BLUS_OPENAI_API_KEY env (legacy OPENAI_API_KEY is ignored).
 OPENAI_API_KEY=your_api_key
 # Base URL of the backend server. If "default" URL will be resolved based on --model.
 API_BASE_URL=default
@@ -453,20 +453,20 @@ Possible options for `CODE_THEME`: https://pygments.org/styles/
 ```
 
 ## Docker
-Run the container using the `OPENAI_API_KEY` environment variable, and a docker volume to store cache. Consider to set the environment variables `OS_NAME` and `SHELL_NAME` according to your preferences.
+Run the container using the `BLUS_OPENAI_API_KEY` environment variable, and a docker volume to store cache. Consider to set the environment variables `BLUS_OS_NAME` and `BLUS_SHELL_NAME` according to your preferences.
 ```shell
 docker run --rm \
-           --env OPENAI_API_KEY=api_key \
-           --env OS_NAME=$(uname -s) \
-           --env SHELL_NAME=$(echo $SHELL) \
+           --env BLUS_OPENAI_API_KEY=api_key \
+           --env BLUS_OS_NAME=$(uname -s) \
+           --env BLUS_SHELL_NAME=$(echo $SHELL) \
            --volume gpt-cache:/tmp/shell_gpt \
        ghcr.io/ther1d/shell_gpt -s "update my system"
 ```
 
-Example of a conversation, using an alias and the `OPENAI_API_KEY` environment variable:
+Example of a conversation, using an alias and the `BLUS_OPENAI_API_KEY` environment variable:
 ```shell
-alias sgpt="docker run --rm --volume gpt-cache:/tmp/shell_gpt --env OPENAI_API_KEY --env OS_NAME=$(uname -s) --env SHELL_NAME=$(echo $SHELL) ghcr.io/ther1d/shell_gpt"
-export OPENAI_API_KEY="your OPENAI API key"
+alias sgpt="docker run --rm --volume gpt-cache:/tmp/shell_gpt --env BLUS_OPENAI_API_KEY --env BLUS_OS_NAME=$(uname -s) --env BLUS_SHELL_NAME=$(echo $SHELL) ghcr.io/ther1d/shell_gpt"
+export BLUS_OPENAI_API_KEY="your OPENAI API key"
 sgpt --chat rainbow "what are the colors of a rainbow"
 sgpt --chat rainbow "inverse the list of your last answer"
 sgpt --chat rainbow "translate your last answer in french"
@@ -485,14 +485,14 @@ Example Dockerfile:
 ```
 FROM python:3-slim
 
-ENV DEFAULT_MODEL=ollama/mistral:7b-instruct-v0.2-q4_K_M
-ENV API_BASE_URL=http://10.10.10.10:11434
-ENV USE_LITELLM=true
-ENV OPENAI_API_KEY=bad_key
-ENV SHELL_INTERACTION=false
-ENV PRETTIFY_MARKDOWN=false
-ENV OS_NAME="Arch Linux"
-ENV SHELL_NAME=auto
+ENV BLUS_DEFAULT_MODEL=ollama/mistral:7b-instruct-v0.2-q4_K_M
+ENV BLUS_API_BASE_URL=http://10.10.10.10:11434
+ENV BLUS_USE_LITELLM=true
+ENV BLUS_OPENAI_API_KEY=bad_key
+ENV BLUS_SHELL_INTERACTION=false
+ENV BLUS_PRETTIFY_MARKDOWN=false
+ENV BLUS_OS_NAME="Arch Linux"
+ENV BLUS_SHELL_NAME=auto
 
 WORKDIR /app
 COPY . /app
