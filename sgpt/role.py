@@ -64,7 +64,7 @@ class SystemRole:
         cls.storage.parent.mkdir(parents=True, exist_ok=True)
         variables = {"shell": cls._shell_name(), "os": cls._os_name()}
         for default_role in (
-            SystemRole("ShellGPT", DEFAULT_ROLE, variables),
+            SystemRole("BlueShell", DEFAULT_ROLE, variables),
             SystemRole("Shell Command Generator", SHELL_ROLE, variables),
             SystemRole("Shell Command Descriptor", DESCRIBE_SHELL_ROLE, variables),
             SystemRole("Code Generator", CODE_ROLE),
@@ -167,7 +167,7 @@ class SystemRole:
 
 
 class DefaultRoles(Enum):
-    DEFAULT = "ShellGPT"
+    DEFAULT = "BlueShell"
     SHELL = "Shell Command Generator"
     DESCRIBE_SHELL = "Shell Command Descriptor"
     CODE = "Code Generator"

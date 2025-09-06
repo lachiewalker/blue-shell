@@ -82,14 +82,14 @@ def install_shell_integration(*_args: Any) -> None:
         with open(os.path.expanduser("~/.bashrc"), "a", encoding="utf-8") as file:
             file.write(bash_integration)
     else:
-        raise UsageError("ShellGPT integrations only available for ZSH and Bash.")
+        raise UsageError("BlueShell integrations only available for ZSH and Bash.")
 
     typer.echo("Done! Restart your shell to apply changes.")
 
 
 @option_callback
-def get_sgpt_version(*_args: Any) -> None:
+def get_blus_version(*_args: Any) -> None:
     """
-    Displays the current installed version of ShellGPT
+    Displays the current installed version of BlueShell
     """
-    typer.echo(f"ShellGPT {__version__}")
+    typer.echo(f"BlueShell {__version__}")

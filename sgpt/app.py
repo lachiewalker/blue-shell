@@ -18,7 +18,7 @@ from sgpt.llm_functions.init_functions import install_functions as inst_funcs
 from sgpt.role import DefaultRoles, SystemRole
 from sgpt.utils import (
     get_edited_prompt,
-    get_sgpt_version,
+    get_blus_version,
     install_shell_integration,
     run_command,
 )
@@ -93,7 +93,7 @@ def main(
         False,
         "--version",
         help="Show version.",
-        callback=get_sgpt_version,
+        callback=get_blus_version,
     ),
     chat: str = typer.Option(
         None,
@@ -164,7 +164,7 @@ def main(
         # In some cases, we need to pass stdin along with inputs.
         # When we want part of stdin to be used as a init prompt,
         # but rest of the stdin to be used as a inputs. For example:
-        # echo "hello\n__sgpt__eof__\nThis is input" | sgpt --repl temp
+        # echo "hello\n__sgpt__eof__\nThis is input" | blus --repl temp
         # In this case, "hello" will be used as a init prompt, and
         # "This is input" will be used as "interactive" input to the REPL.
         # This is useful to test REPL with some initial context.
