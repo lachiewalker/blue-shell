@@ -17,12 +17,10 @@ from blue_shell.handlers.repl_handler import ReplHandler
 from blue_shell.chat_session import list_chat_ids, show_chat_messages
 from blue_shell.llm_functions.init_functions import install_functions as inst_funcs
 from blue_shell.role import DefaultRoles, SystemRole
-from blue_shell.utils import (
-    get_edited_prompt,
-    get_blus_version,
-    install_shell_integration,
-    run_command,
-)
+from blue_shell.editor import get_edited_prompt
+from blus.utils.integration import install_shell_integration
+from blue_shell.shell import run_command
+from blue_shell.utils import get_sgpt_version
 
 
 def main(

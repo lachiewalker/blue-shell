@@ -82,7 +82,7 @@ def test_describe_shell_stdin(completion):
     assert "lists" in result.stdout
 
 
-@patch("os.system")
+@patch("blue_shell.shell.os.system")
 @patch("blue_shell.llm_client.LLMClient.completion")
 def test_shell_run_description(completion, system):
     completion.side_effect = [mock_comp("echo hello"), mock_comp("prints hello")]
@@ -134,7 +134,7 @@ def test_shell_chat(completion):
     # TODO: Shell chat can be recalled without --shell option.
 
 
-@patch("os.system")
+@patch("blue_shell.shell.os.system")
 @patch("blue_shell.llm_client.LLMClient.completion")
 def test_shell_repl(completion, mock_system):
     completion.side_effect = [mock_comp("ls"), mock_comp("ls | sort")]

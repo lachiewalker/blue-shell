@@ -477,6 +477,13 @@ You also can use the provided `Dockerfile` to build your own image:
 docker build -t blus .
 ```
 
+## Module overview
+Internal helpers were split into dedicated modules:
+
+* `sgpt.editor` – prompt editing utilities.
+* `sgpt.shell` – shell detection and command execution helpers.
+* `sgpt.utils.integration` – shell integration installers.
+
 ### Docker + Ollama
 
 If you want to send your requests to an Ollama instance and run BlueShell inside a Docker container, you need to adjust the Dockerfile and build the container yourself: the litellm package is needed and env variables need to be set correctly.

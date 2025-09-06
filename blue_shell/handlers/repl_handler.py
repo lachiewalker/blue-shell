@@ -6,7 +6,7 @@ from rich.rule import Rule
 
 from ..llm_client import LLMClient
 from ..role import DefaultRoles, SystemRole
-from ..utils import run_command
+from ..shell import run_command
 from .chat_handler import ChatHandler
 from .default_handler import DefaultHandler
 from ..chat_session import show_chat_messages
