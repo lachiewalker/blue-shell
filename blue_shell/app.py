@@ -14,6 +14,7 @@ from blue_shell.function import get_openai_schemas
 from blue_shell.handlers.chat_handler import ChatHandler
 from blue_shell.handlers.default_handler import DefaultHandler
 from blue_shell.handlers.repl_handler import ReplHandler
+from blue_shell.chat_session import list_chat_ids, show_chat_messages
 from blue_shell.llm_functions.init_functions import install_functions as inst_funcs
 from blue_shell.role import DefaultRoles, SystemRole
 from blue_shell.utils import (
@@ -115,7 +116,7 @@ def main(
         "--list-chats",
         "-lc",
         help="List all existing chat ids.",
-        callback=ChatHandler.list_ids,
+        callback=list_chat_ids,
         rich_help_panel="Chat Options",
     ),
     role: str = typer.Option(
@@ -184,7 +185,7 @@ def main(
             pass
 
     if show_chat:
-        ChatHandler.show_messages(show_chat, md)
+        show_chat_messages(show_chat, md)
 
     if sum((shell, describe_shell, code)) > 1:
         raise BadArgumentUsage(

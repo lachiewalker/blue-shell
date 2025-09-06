@@ -7,6 +7,7 @@ from typer.testing import CliRunner
 from blue_shell import config, main
 from blue_shell.__version__ import __version__
 from blue_shell.role import DefaultRoles, SystemRole
+from blue_shell.chat_session import invalidate_chat
 
 from .utils import app, cmd_args, comp_args, mock_comp, runner
 
@@ -44,7 +45,7 @@ def test_show_chat_use_markdown(completion, console_print):
     completion.return_value = mock_comp("ok")
     chat_name = "_test"
     chat_path = Path(cfg.get("CHAT_CACHE_PATH")) / chat_name
-    chat_path.unlink(missing_ok=True)
+    invalidate_chat(chat_name)
 
     args = {"prompt": "my number is 2", "--chat": chat_name}
     result = runner.invoke(app, cmd_args(**args))
@@ -62,7 +63,7 @@ def test_show_chat_no_use_markdown(completion, console_print):
     completion.return_value = mock_comp("ok")
     chat_name = "_test"
     chat_path = Path(cfg.get("CHAT_CACHE_PATH")) / chat_name
-    chat_path.unlink(missing_ok=True)
+    invalidate_chat(chat_name)
 
     # Flag '--code' doesn't use markdown
     args = {"prompt": "my number is 2", "--chat": chat_name, "--code": True}
@@ -80,7 +81,7 @@ def test_default_chat(completion):
     completion.side_effect = [mock_comp("ok"), mock_comp("4")]
     chat_name = "_test"
     chat_path = Path(cfg.get("CHAT_CACHE_PATH")) / chat_name
-    chat_path.unlink(missing_ok=True)
+    invalidate_chat(chat_name)
 
     args = {"prompt": "my number is 2", "--chat": chat_name}
     result = runner.invoke(app, cmd_args(**args))
@@ -124,7 +125,7 @@ def test_default_chat(completion):
     result = runner.invoke(app, cmd_args(**args))
     assert result.exit_code == 2
     assert "Error" in result.stdout
-    chat_path.unlink()
+    invalidate_chat(chat_name)
 
 
 @patch("blue_shell.handlers.handler.completion")
@@ -132,7 +133,7 @@ def test_default_repl(completion):
     completion.side_effect = [mock_comp("ok"), mock_comp("8")]
     chat_name = "_test"
     chat_path = Path(cfg.get("CHAT_CACHE_PATH")) / chat_name
-    chat_path.unlink(missing_ok=True)
+    invalidate_chat(chat_name)
 
     args = {"--repl": chat_name}
     inputs = ["__blue_shell__eof__", "my number is 6", "my number + 2?", "exit()"]
@@ -161,7 +162,7 @@ def test_default_repl_stdin(completion):
     completion.side_effect = [mock_comp("ok init"), mock_comp("ok another")]
     chat_name = "_test"
     chat_path = Path(cfg.get("CHAT_CACHE_PATH")) / chat_name
-    chat_path.unlink(missing_ok=True)
+    invalidate_chat(chat_name)
 
     my_runner = CliRunner()
     my_app = typer.Typer()

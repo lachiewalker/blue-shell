@@ -4,6 +4,7 @@ from unittest.mock import patch
 
 from blue_shell.config import cfg
 from blue_shell.role import DefaultRoles, SystemRole
+from blue_shell.chat_session import invalidate_chat
 
 from .utils import app, cmd_args, comp_args, mock_comp, runner
 
@@ -101,7 +102,7 @@ def test_shell_chat(completion):
     role = SystemRole.get(DefaultRoles.SHELL.value)
     chat_name = "_test"
     chat_path = Path(cfg.get("CHAT_CACHE_PATH")) / chat_name
-    chat_path.unlink(missing_ok=True)
+    invalidate_chat(chat_name)
 
     args = {"prompt": "list folder", "--shell": True, "--chat": chat_name}
     result = runner.invoke(app, cmd_args(**args))
@@ -129,7 +130,7 @@ def test_shell_chat(completion):
     result = runner.invoke(app, cmd_args(**args))
     assert result.exit_code == 2
     assert "Error" in result.stdout
-    chat_path.unlink()
+    invalidate_chat(chat_name)
     # TODO: Shell chat can be recalled without --shell option.
 
 
@@ -140,7 +141,7 @@ def test_shell_repl(completion, mock_system):
     role = SystemRole.get(DefaultRoles.SHELL.value)
     chat_name = "_test"
     chat_path = Path(cfg.get("CHAT_CACHE_PATH")) / chat_name
-    chat_path.unlink(missing_ok=True)
+    invalidate_chat(chat_name)
 
     args = {"--repl": chat_name, "--shell": True}
     inputs = ["__blue_shell__eof__", "list folder", "sort by name", "e", "exit()"]
