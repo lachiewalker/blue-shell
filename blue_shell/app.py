@@ -20,7 +20,7 @@ from blue_shell.role import DefaultRoles, SystemRole
 from blue_shell.editor import get_edited_prompt
 from blus.utils.integration import install_shell_integration
 from blue_shell.shell import run_command
-from blue_shell.utils import get_sgpt_version
+from blue_shell.utils import get_blus_version
 
 
 def main(

@@ -2,9 +2,9 @@ from typing import Any, Callable
 
 import typer
 
-from sgpt.__version__ import __version__
+from blue_shell.__version__ import __version__
 
-__all__ = ["option_callback", "get_sgpt_version"]
+__all__ = ["option_callback", "get_blus_version"]
 
 
 def option_callback(func: Callable) -> Callable:  # type: ignore
@@ -18,6 +18,6 @@ def option_callback(func: Callable) -> Callable:  # type: ignore
 
 
 @option_callback
-def get_sgpt_version(*_args: Any) -> None:
-    """Displays the current installed version of ShellGPT"""
-    typer.echo(f"ShellGPT {__version__}")
+def get_blus_version(*_args: Any) -> None:
+    """Displays the current installed version of BlueShell"""
+    typer.echo(f"BlueShell {__version__}")
