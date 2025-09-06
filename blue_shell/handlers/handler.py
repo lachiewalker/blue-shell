@@ -1,46 +1,26 @@
 import json
 from pathlib import Path
-from typing import Any, Callable, Dict, Generator, List, Optional
+from typing import Any, Dict, Generator, List, Optional
 
 from ..cache import Cache
 from ..config import cfg
 from ..function import get_function
+from ..llm_client import LLMClient, get_llm_client
 from ..printer import MarkdownPrinter, Printer, TextPrinter
 from ..role import DefaultRoles, SystemRole
-
-completion: Callable[..., Any] = lambda *args, **kwargs: Generator[Any, None, None]
-
-base_url = cfg.get("API_BASE_URL")
-use_litellm = cfg.get("USE_LITELLM") == "true"
-additional_kwargs = {
-    "timeout": int(cfg.get("REQUEST_TIMEOUT")),
-    "api_key": cfg.get("OPENAI_API_KEY"),
-    "base_url": None if base_url == "default" else base_url,
-}
-
-if use_litellm:
-    import litellm  # type: ignore
-
-    completion = litellm.completion
-    litellm.suppress_debug_info = True
-    additional_kwargs.pop("api_key")
-else:
-    from openai import OpenAI
-
-    client = OpenAI(**additional_kwargs)  # type: ignore
-    completion = client.chat.completions.create
-    additional_kwargs = {}
 
 
 class Handler:
     cache = Cache(int(cfg.get("CACHE_LENGTH")), Path(cfg.get("CACHE_PATH")))
 
-    def __init__(self, role: SystemRole, markdown: bool) -> None:
+    def __init__(
+        self,
+        role: SystemRole,
+        markdown: bool,
+        client: Optional[LLMClient] = None,
+    ) -> None:
         self.role = role
-
-        api_base_url = cfg.get("API_BASE_URL")
-        self.base_url = None if api_base_url == "default" else api_base_url
-        self.timeout = int(cfg.get("REQUEST_TIMEOUT"))
+        self.client = client or get_llm_client()
 
         self.markdown = "APPLY MARKDOWN" in self.role.role and markdown
         self.code_theme, self.color = cfg.get("CODE_THEME"), cfg.get("DEFAULT_COLOR")
@@ -98,18 +78,19 @@ class Handler:
         if is_shell_role or is_code_role or is_dsc_shell_role:
             functions = None
 
+        call_kwargs: Dict[str, Any] = {}
         if functions:
-            additional_kwargs["tool_choice"] = "auto"
-            additional_kwargs["tools"] = functions
-            additional_kwargs["parallel_tool_calls"] = False
+            call_kwargs["tool_choice"] = "auto"
+            call_kwargs["tools"] = functions
+            call_kwargs["parallel_tool_calls"] = False
 
-        response = completion(
+        response = self.client.completion(
             model=model,
             temperature=temperature,
             top_p=top_p,
             messages=messages,
             stream=True,
-            **additional_kwargs,
+            **call_kwargs,
         )
 
         try:
@@ -118,7 +99,9 @@ class Handler:
 
                 # LiteLLM uses dict instead of Pydantic object like OpenAI does.
                 tool_calls = (
-                    delta.get("tool_calls") if use_litellm else delta.tool_calls
+                    delta.get("tool_calls")
+                    if self.client.use_litellm
+                    else delta.tool_calls
                 )
                 if tool_calls:
                     for tool_call in tool_calls:

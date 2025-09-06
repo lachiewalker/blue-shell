@@ -10,7 +10,7 @@ from .utils import app, cmd_args, comp_args, mock_comp, runner
 role = SystemRole.get(DefaultRoles.CODE.value)
 
 
-@patch("blue_shell.handlers.handler.completion")
+@patch("blue_shell.llm_client.LLMClient.completion")
 def test_code_generation(completion):
     completion.return_value = mock_comp("print('Hello World')")
 
@@ -24,7 +24,7 @@ def test_code_generation(completion):
 
 @patch("blue_shell.printer.TextPrinter.live_print")
 @patch("blue_shell.printer.MarkdownPrinter.live_print")
-@patch("blue_shell.handlers.handler.completion")
+@patch("blue_shell.llm_client.LLMClient.completion")
 def test_code_generation_no_markdown(completion, markdown_printer, text_printer):
     completion.return_value = mock_comp("print('Hello World')")
 
@@ -37,7 +37,7 @@ def test_code_generation_no_markdown(completion, markdown_printer, text_printer)
     text_printer.assert_called()
 
 
-@patch("blue_shell.handlers.handler.completion")
+@patch("blue_shell.llm_client.LLMClient.completion")
 def test_code_generation_stdin(completion):
     completion.return_value = mock_comp("# Hello\nprint('Hello')")
 
@@ -52,7 +52,7 @@ def test_code_generation_stdin(completion):
     assert "print('Hello')" in result.stdout
 
 
-@patch("blue_shell.handlers.handler.completion")
+@patch("blue_shell.llm_client.LLMClient.completion")
 def test_code_chat(completion):
     completion.side_effect = [
         mock_comp("print('hello')"),
@@ -88,12 +88,12 @@ def test_code_chat(completion):
     args["--shell"] = True
     result = runner.invoke(app, cmd_args(**args))
     assert result.exit_code == 2
-    assert "Error" in result.stdout
+    assert "Error" in result.stderr
     invalidate_chat(chat_name)
     # TODO: Code chat can be recalled without --code option.
 
 
-@patch("blue_shell.handlers.handler.completion")
+@patch("blue_shell.llm_client.LLMClient.completion")
 def test_code_repl(completion):
     completion.side_effect = [
         mock_comp("print('hello')"),
@@ -125,21 +125,21 @@ def test_code_repl(completion):
     assert "print('world')" in result.stdout
 
 
-@patch("blue_shell.handlers.handler.completion")
+@patch("blue_shell.llm_client.LLMClient.completion")
 def test_code_and_shell(completion):
     args = {"--code": True, "--shell": True}
     result = runner.invoke(app, cmd_args(**args))
 
     completion.assert_not_called()
     assert result.exit_code == 2
-    assert "Error" in result.stdout
+    assert "Error" in result.stderr
 
 
-@patch("blue_shell.handlers.handler.completion")
+@patch("blue_shell.llm_client.LLMClient.completion")
 def test_code_and_describe_shell(completion):
     args = {"--code": True, "--describe-shell": True}
     result = runner.invoke(app, cmd_args(**args))
 
     completion.assert_not_called()
     assert result.exit_code == 2
-    assert "Error" in result.stdout
+    assert "Error" in result.stderr

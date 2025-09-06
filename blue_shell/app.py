@@ -173,6 +173,7 @@ def main(
             if "__sgpt__eof__" in line:
                 break
             stdin += line
+        stdin = stdin.rstrip("\n")
         prompt = f"{stdin}\n\n{prompt}" if prompt else stdin
         try:
             # Switch to stdin for interactive input.

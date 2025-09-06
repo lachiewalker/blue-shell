@@ -1,7 +1,8 @@
 from pathlib import Path
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 from ..config import cfg
+from ..llm_client import LLMClient
 from ..role import SystemRole
 from .handler import Handler
 
@@ -10,8 +11,13 @@ CHAT_CACHE_PATH = Path(cfg.get("CHAT_CACHE_PATH"))
 
 
 class DefaultHandler(Handler):
-    def __init__(self, role: SystemRole, markdown: bool) -> None:
-        super().__init__(role, markdown)
+    def __init__(
+        self,
+        role: SystemRole,
+        markdown: bool,
+        client: Optional[LLMClient] = None,
+    ) -> None:
+        super().__init__(role, markdown, client)
         self.role = role
 
     def make_messages(self, prompt: str) -> List[Dict[str, str]]:
