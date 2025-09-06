@@ -2,13 +2,13 @@ import json
 from pathlib import Path
 from unittest.mock import patch
 
-from sgpt.config import cfg
-from sgpt.role import SystemRole
+from blue_shell.config import cfg
+from blue_shell.role import SystemRole
 
 from .utils import app, cmd_args, comp_args, mock_comp, runner
 
 
-@patch("sgpt.handlers.handler.completion")
+@patch("blue_shell.handlers.handler.completion")
 def test_role(completion):
     completion.return_value = mock_comp('{"foo": "bar"}')
     path = Path(cfg.get("ROLE_STORAGE_PATH")) / "json_gen_test.json"

@@ -1,15 +1,15 @@
 from pathlib import Path
 from unittest.mock import patch
 
-from sgpt.config import cfg
-from sgpt.role import DefaultRoles, SystemRole
+from blue_shell.config import cfg
+from blue_shell.role import DefaultRoles, SystemRole
 
 from .utils import app, cmd_args, comp_args, mock_comp, runner
 
 role = SystemRole.get(DefaultRoles.CODE.value)
 
 
-@patch("sgpt.handlers.handler.completion")
+@patch("blue_shell.handlers.handler.completion")
 def test_code_generation(completion):
     completion.return_value = mock_comp("print('Hello World')")
 
@@ -21,9 +21,9 @@ def test_code_generation(completion):
     assert "print('Hello World')" in result.stdout
 
 
-@patch("sgpt.printer.TextPrinter.live_print")
-@patch("sgpt.printer.MarkdownPrinter.live_print")
-@patch("sgpt.handlers.handler.completion")
+@patch("blue_shell.printer.TextPrinter.live_print")
+@patch("blue_shell.printer.MarkdownPrinter.live_print")
+@patch("blue_shell.handlers.handler.completion")
 def test_code_generation_no_markdown(completion, markdown_printer, text_printer):
     completion.return_value = mock_comp("print('Hello World')")
 
@@ -36,7 +36,7 @@ def test_code_generation_no_markdown(completion, markdown_printer, text_printer)
     text_printer.assert_called()
 
 
-@patch("sgpt.handlers.handler.completion")
+@patch("blue_shell.handlers.handler.completion")
 def test_code_generation_stdin(completion):
     completion.return_value = mock_comp("# Hello\nprint('Hello')")
 
@@ -51,7 +51,7 @@ def test_code_generation_stdin(completion):
     assert "print('Hello')" in result.stdout
 
 
-@patch("sgpt.handlers.handler.completion")
+@patch("blue_shell.handlers.handler.completion")
 def test_code_chat(completion):
     completion.side_effect = [
         mock_comp("print('hello')"),
@@ -92,7 +92,7 @@ def test_code_chat(completion):
     # TODO: Code chat can be recalled without --code option.
 
 
-@patch("sgpt.handlers.handler.completion")
+@patch("blue_shell.handlers.handler.completion")
 def test_code_repl(completion):
     completion.side_effect = [
         mock_comp("print('hello')"),
@@ -103,7 +103,7 @@ def test_code_repl(completion):
     chat_path.unlink(missing_ok=True)
 
     args = {"--repl": chat_name, "--code": True}
-    inputs = ["__sgpt__eof__", "print hello", "also print world", "exit()"]
+    inputs = ["__blue_shell__eof__", "print hello", "also print world", "exit()"]
     result = runner.invoke(app, cmd_args(**args), input="\n".join(inputs))
 
     expected_messages = [
@@ -124,7 +124,7 @@ def test_code_repl(completion):
     assert "print('world')" in result.stdout
 
 
-@patch("sgpt.handlers.handler.completion")
+@patch("blue_shell.handlers.handler.completion")
 def test_code_and_shell(completion):
     args = {"--code": True, "--shell": True}
     result = runner.invoke(app, cmd_args(**args))
@@ -134,7 +134,7 @@ def test_code_and_shell(completion):
     assert "Error" in result.stdout
 
 
-@patch("sgpt.handlers.handler.completion")
+@patch("blue_shell.handlers.handler.completion")
 def test_code_and_describe_shell(completion):
     args = {"--code": True, "--describe-shell": True}
     result = runner.invoke(app, cmd_args(**args))

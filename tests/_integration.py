@@ -18,11 +18,11 @@ from uuid import uuid4
 import typer
 from typer.testing import CliRunner
 
-from sgpt.__version__ import __version__
-from sgpt.app import main
-from sgpt.config import cfg
-from sgpt.handlers.handler import Handler
-from sgpt.role import SystemRole
+from blue_shell.__version__ import __version__
+from blue_shell.app import main
+from blue_shell.config import cfg
+from blue_shell.handlers.handler import Handler
+from blue_shell.role import SystemRole
 
 runner = CliRunner()
 app = typer.Typer()
@@ -380,7 +380,7 @@ class TestShellGpt(TestCase):
         # assert "command not found" not in result.stdout
         # assert "hello world" in stdout.split("\n")[-1]
 
-    @patch("sgpt.handlers.handler.Handler.get_completion")
+    @patch("blue_shell.handlers.handler.Handler.get_completion")
     def test_model_option(self, mocked_get_completion):
         dict_arguments = {
             "prompt": "What is the capital of the Czech Republic?",

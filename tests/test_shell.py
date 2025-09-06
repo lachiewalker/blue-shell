@@ -2,13 +2,13 @@ import os
 from pathlib import Path
 from unittest.mock import patch
 
-from sgpt.config import cfg
-from sgpt.role import DefaultRoles, SystemRole
+from blue_shell.config import cfg
+from blue_shell.role import DefaultRoles, SystemRole
 
 from .utils import app, cmd_args, comp_args, mock_comp, runner
 
 
-@patch("sgpt.handlers.handler.completion")
+@patch("blue_shell.handlers.handler.completion")
 def test_shell(completion):
     role = SystemRole.get(DefaultRoles.SHELL.value)
     completion.return_value = mock_comp("git commit -m test")
@@ -22,9 +22,9 @@ def test_shell(completion):
     assert "[E]xecute, [M]odify, [D]escribe, [A]bort:" in result.stdout
 
 
-@patch("sgpt.printer.TextPrinter.live_print")
-@patch("sgpt.printer.MarkdownPrinter.live_print")
-@patch("sgpt.handlers.handler.completion")
+@patch("blue_shell.printer.TextPrinter.live_print")
+@patch("blue_shell.printer.MarkdownPrinter.live_print")
+@patch("blue_shell.handlers.handler.completion")
 def test_shell_no_markdown(completion, markdown_printer, text_printer):
     completion.return_value = mock_comp("git commit -m test")
 
@@ -37,7 +37,7 @@ def test_shell_no_markdown(completion, markdown_printer, text_printer):
     text_printer.assert_called()
 
 
-@patch("sgpt.handlers.handler.completion")
+@patch("blue_shell.handlers.handler.completion")
 def test_shell_stdin(completion):
     completion.return_value = mock_comp("ls -l | sort")
     role = SystemRole.get(DefaultRoles.SHELL.value)
@@ -53,7 +53,7 @@ def test_shell_stdin(completion):
     assert "[E]xecute, [M]odify, [D]escribe, [A]bort:" in result.stdout
 
 
-@patch("sgpt.handlers.handler.completion")
+@patch("blue_shell.handlers.handler.completion")
 def test_describe_shell(completion):
     completion.return_value = mock_comp("lists the contents of a folder")
     role = SystemRole.get(DefaultRoles.DESCRIBE_SHELL.value)
@@ -66,7 +66,7 @@ def test_describe_shell(completion):
     assert "lists" in result.stdout
 
 
-@patch("sgpt.handlers.handler.completion")
+@patch("blue_shell.handlers.handler.completion")
 def test_describe_shell_stdin(completion):
     completion.return_value = mock_comp("lists the contents of a folder")
     role = SystemRole.get(DefaultRoles.DESCRIBE_SHELL.value)
@@ -82,11 +82,11 @@ def test_describe_shell_stdin(completion):
 
 
 @patch("os.system")
-@patch("sgpt.handlers.handler.completion")
+@patch("blue_shell.handlers.handler.completion")
 def test_shell_run_description(completion, system):
     completion.side_effect = [mock_comp("echo hello"), mock_comp("prints hello")]
     args = {"prompt": "echo hello", "--shell": True}
-    inputs = "__sgpt__eof__\nd\ne\n"
+    inputs = "__blue_shell__eof__\nd\ne\n"
     result = runner.invoke(app, cmd_args(**args), input=inputs)
     shell = os.environ.get("SHELL", "/bin/sh")
     system.assert_called_once_with(f"{shell} -c 'echo hello'")
@@ -95,7 +95,7 @@ def test_shell_run_description(completion, system):
     assert "prints hello" in result.stdout
 
 
-@patch("sgpt.handlers.handler.completion")
+@patch("blue_shell.handlers.handler.completion")
 def test_shell_chat(completion):
     completion.side_effect = [mock_comp("ls"), mock_comp("ls | sort")]
     role = SystemRole.get(DefaultRoles.SHELL.value)
@@ -134,7 +134,7 @@ def test_shell_chat(completion):
 
 
 @patch("os.system")
-@patch("sgpt.handlers.handler.completion")
+@patch("blue_shell.handlers.handler.completion")
 def test_shell_repl(completion, mock_system):
     completion.side_effect = [mock_comp("ls"), mock_comp("ls | sort")]
     role = SystemRole.get(DefaultRoles.SHELL.value)
@@ -143,7 +143,7 @@ def test_shell_repl(completion, mock_system):
     chat_path.unlink(missing_ok=True)
 
     args = {"--repl": chat_name, "--shell": True}
-    inputs = ["__sgpt__eof__", "list folder", "sort by name", "e", "exit()"]
+    inputs = ["__blue_shell__eof__", "list folder", "sort by name", "e", "exit()"]
     result = runner.invoke(app, cmd_args(**args), input="\n".join(inputs))
     shell = os.environ.get("SHELL", "/bin/sh")
     mock_system.assert_called_once_with(f"{shell} -c 'ls | sort'")
@@ -166,7 +166,7 @@ def test_shell_repl(completion, mock_system):
     assert "ls | sort" in result.stdout
 
 
-@patch("sgpt.handlers.handler.completion")
+@patch("blue_shell.handlers.handler.completion")
 def test_shell_and_describe_shell(completion):
     args = {"prompt": "ls", "--describe-shell": True, "--shell": True}
     result = runner.invoke(app, cmd_args(**args))
@@ -176,7 +176,7 @@ def test_shell_and_describe_shell(completion):
     assert "Error" in result.stdout
 
 
-@patch("sgpt.handlers.handler.completion")
+@patch("blue_shell.handlers.handler.completion")
 def test_shell_no_interaction(completion):
     completion.return_value = mock_comp("git commit -m test")
     role = SystemRole.get(DefaultRoles.SHELL.value)

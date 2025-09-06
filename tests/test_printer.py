@@ -3,7 +3,7 @@ from io import StringIO
 import re
 from rich.console import Console
 
-from sgpt.printer import MarkdownPrinter
+from blue_shell.printer import MarkdownPrinter
 
 
 def test_markdown_printer_no_trailing_spaces():

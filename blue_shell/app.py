@@ -9,14 +9,14 @@ from click import BadArgumentUsage
 from click.types import Choice
 from prompt_toolkit import PromptSession
 
-from sgpt.config import cfg
-from sgpt.function import get_openai_schemas
-from sgpt.handlers.chat_handler import ChatHandler
-from sgpt.handlers.default_handler import DefaultHandler
-from sgpt.handlers.repl_handler import ReplHandler
-from sgpt.llm_functions.init_functions import install_functions as inst_funcs
-from sgpt.role import DefaultRoles, SystemRole
-from sgpt.utils import (
+from blue_shell.config import cfg
+from blue_shell.function import get_openai_schemas
+from blue_shell.handlers.chat_handler import ChatHandler
+from blue_shell.handlers.default_handler import DefaultHandler
+from blue_shell.handlers.repl_handler import ReplHandler
+from blue_shell.llm_functions.init_functions import install_functions as inst_funcs
+from blue_shell.role import DefaultRoles, SystemRole
+from blue_shell.utils import (
     get_edited_prompt,
     get_blus_version,
     install_shell_integration,

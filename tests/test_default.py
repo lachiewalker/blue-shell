@@ -4,9 +4,9 @@ from unittest.mock import patch
 import typer
 from typer.testing import CliRunner
 
-from sgpt import config, main
-from sgpt.__version__ import __version__
-from sgpt.role import DefaultRoles, SystemRole
+from blue_shell import config, main
+from blue_shell.__version__ import __version__
+from blue_shell.role import DefaultRoles, SystemRole
 
 from .utils import app, cmd_args, comp_args, mock_comp, runner
 
@@ -14,7 +14,7 @@ role = SystemRole.get(DefaultRoles.DEFAULT.value)
 cfg = config.cfg
 
 
-@patch("sgpt.handlers.handler.completion")
+@patch("blue_shell.handlers.handler.completion")
 def test_default(completion):
     completion.return_value = mock_comp("Prague")
 
@@ -26,7 +26,7 @@ def test_default(completion):
     assert "Prague" in result.stdout
 
 
-@patch("sgpt.handlers.handler.completion")
+@patch("blue_shell.handlers.handler.completion")
 def test_default_stdin(completion):
     completion.return_value = mock_comp("Prague")
 
@@ -39,7 +39,7 @@ def test_default_stdin(completion):
 
 
 @patch("rich.console.Console.print")
-@patch("sgpt.handlers.handler.completion")
+@patch("blue_shell.handlers.handler.completion")
 def test_show_chat_use_markdown(completion, console_print):
     completion.return_value = mock_comp("ok")
     chat_name = "_test"
@@ -57,7 +57,7 @@ def test_show_chat_use_markdown(completion, console_print):
 
 
 @patch("rich.console.Console.print")
-@patch("sgpt.handlers.handler.completion")
+@patch("blue_shell.handlers.handler.completion")
 def test_show_chat_no_use_markdown(completion, console_print):
     completion.return_value = mock_comp("ok")
     chat_name = "_test"
@@ -75,7 +75,7 @@ def test_show_chat_no_use_markdown(completion, console_print):
     console_print.assert_not_called()
 
 
-@patch("sgpt.handlers.handler.completion")
+@patch("blue_shell.handlers.handler.completion")
 def test_default_chat(completion):
     completion.side_effect = [mock_comp("ok"), mock_comp("4")]
     chat_name = "_test"
@@ -127,7 +127,7 @@ def test_default_chat(completion):
     chat_path.unlink()
 
 
-@patch("sgpt.handlers.handler.completion")
+@patch("blue_shell.handlers.handler.completion")
 def test_default_repl(completion):
     completion.side_effect = [mock_comp("ok"), mock_comp("8")]
     chat_name = "_test"
@@ -135,7 +135,7 @@ def test_default_repl(completion):
     chat_path.unlink(missing_ok=True)
 
     args = {"--repl": chat_name}
-    inputs = ["__sgpt__eof__", "my number is 6", "my number + 2?", "exit()"]
+    inputs = ["__blue_shell__eof__", "my number is 6", "my number + 2?", "exit()"]
     result = runner.invoke(app, cmd_args(**args), input="\n".join(inputs))
 
     expected_messages = [
@@ -156,7 +156,7 @@ def test_default_repl(completion):
     assert "8" in result.stdout
 
 
-@patch("sgpt.handlers.handler.completion")
+@patch("blue_shell.handlers.handler.completion")
 def test_default_repl_stdin(completion):
     completion.side_effect = [mock_comp("ok init"), mock_comp("ok another")]
     chat_name = "_test"
@@ -168,7 +168,7 @@ def test_default_repl_stdin(completion):
     my_app.command()(main)
 
     args = {"--repl": chat_name}
-    inputs = ["this is stdin", "__sgpt__eof__", "prompt", "another", "exit()"]
+    inputs = ["this is stdin", "__blue_shell__eof__", "prompt", "another", "exit()"]
     result = my_runner.invoke(my_app, cmd_args(**args), input="\n".join(inputs))
 
     expected_messages = [
@@ -190,7 +190,7 @@ def test_default_repl_stdin(completion):
     assert "ok another" in result.stdout
 
 
-@patch("sgpt.handlers.handler.completion")
+@patch("blue_shell.handlers.handler.completion")
 def test_llm_options(completion):
     completion.return_value = mock_comp("Berlin")
 
@@ -215,7 +215,7 @@ def test_llm_options(completion):
     assert "Berlin" in result.stdout
 
 
-@patch("sgpt.handlers.handler.completion")
+@patch("blue_shell.handlers.handler.completion")
 def test_version(completion):
     args = {"--version": True}
     result = runner.invoke(app, cmd_args(**args))
@@ -224,9 +224,9 @@ def test_version(completion):
     assert __version__ in result.stdout
 
 
-@patch("sgpt.printer.TextPrinter.live_print")
-@patch("sgpt.printer.MarkdownPrinter.live_print")
-@patch("sgpt.handlers.handler.completion")
+@patch("blue_shell.printer.TextPrinter.live_print")
+@patch("blue_shell.printer.MarkdownPrinter.live_print")
+@patch("blue_shell.handlers.handler.completion")
 def test_markdown(completion, markdown_printer, text_printer):
     completion.return_value = mock_comp("pong")
 
@@ -237,9 +237,9 @@ def test_markdown(completion, markdown_printer, text_printer):
     text_printer.assert_not_called()
 
 
-@patch("sgpt.printer.TextPrinter.live_print")
-@patch("sgpt.printer.MarkdownPrinter.live_print")
-@patch("sgpt.handlers.handler.completion")
+@patch("blue_shell.printer.TextPrinter.live_print")
+@patch("blue_shell.printer.MarkdownPrinter.live_print")
+@patch("blue_shell.handlers.handler.completion")
 def test_no_markdown(completion, markdown_printer, text_printer):
     completion.return_value = mock_comp("pong")
 
