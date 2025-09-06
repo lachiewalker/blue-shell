@@ -1,4 +1,5 @@
 import os
+import warnings
 from getpass import getpass
 from pathlib import Path
 from tempfile import gettempdir
@@ -14,29 +15,46 @@ FUNCTIONS_PATH = SHELL_GPT_CONFIG_FOLDER / "functions"
 CHAT_CACHE_PATH = Path(gettempdir()) / "chat_cache"
 CACHE_PATH = Path(gettempdir()) / "cache"
 
-# TODO: Refactor ENV variables with SGPT_ prefix.
+def get_env(key: str, default: str | None = None) -> str | None:
+    """Read ``BLUS_``-prefixed environment variables.
+
+    Legacy keys without the prefix are ignored but emit a warning to
+    help users migrate.
+    """
+
+    prefixed_key = f"BLUS_{key}"
+    if os.getenv(key) is not None:
+        warnings.warn(
+            f"Environment variable '{key}' is deprecated, use '{prefixed_key}' instead.",
+            stacklevel=2,
+        )
+    if (value := os.getenv(prefixed_key)) is not None:
+        return value
+    return default
+
+
 DEFAULT_CONFIG = {
     # TODO: Refactor it to CHAT_STORAGE_PATH.
-    "CHAT_CACHE_PATH": os.getenv("CHAT_CACHE_PATH", str(CHAT_CACHE_PATH)),
-    "CACHE_PATH": os.getenv("CACHE_PATH", str(CACHE_PATH)),
-    "CHAT_CACHE_LENGTH": int(os.getenv("CHAT_CACHE_LENGTH", "100")),
-    "CACHE_LENGTH": int(os.getenv("CHAT_CACHE_LENGTH", "100")),
-    "REQUEST_TIMEOUT": int(os.getenv("REQUEST_TIMEOUT", "60")),
-    "DEFAULT_MODEL": os.getenv("DEFAULT_MODEL", "gpt-4o"),
-    "DEFAULT_COLOR": os.getenv("DEFAULT_COLOR", "magenta"),
-    "ROLE_STORAGE_PATH": os.getenv("ROLE_STORAGE_PATH", str(ROLE_STORAGE_PATH)),
-    "DEFAULT_EXECUTE_SHELL_CMD": os.getenv("DEFAULT_EXECUTE_SHELL_CMD", "false"),
-    "DISABLE_STREAMING": os.getenv("DISABLE_STREAMING", "false"),
-    "CODE_THEME": os.getenv("CODE_THEME", "dracula"),
-    "OPENAI_FUNCTIONS_PATH": os.getenv("OPENAI_FUNCTIONS_PATH", str(FUNCTIONS_PATH)),
-    "OPENAI_USE_FUNCTIONS": os.getenv("OPENAI_USE_FUNCTIONS", "true"),
-    "SHOW_FUNCTIONS_OUTPUT": os.getenv("SHOW_FUNCTIONS_OUTPUT", "false"),
-    "API_BASE_URL": os.getenv("API_BASE_URL", "default"),
-    "PRETTIFY_MARKDOWN": os.getenv("PRETTIFY_MARKDOWN", "true"),
-    "USE_LITELLM": os.getenv("USE_LITELLM", "false"),
-    "SHELL_INTERACTION": os.getenv("SHELL_INTERACTION ", "true"),
-    "OS_NAME": os.getenv("OS_NAME", "auto"),
-    "SHELL_NAME": os.getenv("SHELL_NAME", "auto"),
+    "CHAT_CACHE_PATH": get_env("CHAT_CACHE_PATH", str(CHAT_CACHE_PATH)),
+    "CACHE_PATH": get_env("CACHE_PATH", str(CACHE_PATH)),
+    "CHAT_CACHE_LENGTH": int(get_env("CHAT_CACHE_LENGTH", "100")),
+    "CACHE_LENGTH": int(get_env("CHAT_CACHE_LENGTH", "100")),
+    "REQUEST_TIMEOUT": int(get_env("REQUEST_TIMEOUT", "60")),
+    "DEFAULT_MODEL": get_env("DEFAULT_MODEL", "gpt-4o"),
+    "DEFAULT_COLOR": get_env("DEFAULT_COLOR", "magenta"),
+    "ROLE_STORAGE_PATH": get_env("ROLE_STORAGE_PATH", str(ROLE_STORAGE_PATH)),
+    "DEFAULT_EXECUTE_SHELL_CMD": get_env("DEFAULT_EXECUTE_SHELL_CMD", "false"),
+    "DISABLE_STREAMING": get_env("DISABLE_STREAMING", "false"),
+    "CODE_THEME": get_env("CODE_THEME", "dracula"),
+    "OPENAI_FUNCTIONS_PATH": get_env("OPENAI_FUNCTIONS_PATH", str(FUNCTIONS_PATH)),
+    "OPENAI_USE_FUNCTIONS": get_env("OPENAI_USE_FUNCTIONS", "true"),
+    "SHOW_FUNCTIONS_OUTPUT": get_env("SHOW_FUNCTIONS_OUTPUT", "false"),
+    "API_BASE_URL": get_env("API_BASE_URL", "default"),
+    "PRETTIFY_MARKDOWN": get_env("PRETTIFY_MARKDOWN", "true"),
+    "USE_LITELLM": get_env("USE_LITELLM", "false"),
+    "SHELL_INTERACTION": get_env("SHELL_INTERACTION", "true"),
+    "OS_NAME": get_env("OS_NAME", "auto"),
+    "SHELL_NAME": get_env("SHELL_NAME", "auto"),
     # New features might add their own config variables here.
 }
 
@@ -57,7 +75,7 @@ class Config(dict):  # type: ignore
         else:
             config_path.parent.mkdir(parents=True, exist_ok=True)
             # Don't write API key to config file if it is in the environment.
-            if not defaults.get("OPENAI_API_KEY") and not os.getenv("OPENAI_API_KEY"):
+            if not defaults.get("OPENAI_API_KEY") and not get_env("OPENAI_API_KEY"):
                 __api_key = getpass(prompt="Please enter your OpenAI API key: ")
                 defaults["OPENAI_API_KEY"] = __api_key
             super().__init__(**defaults)
@@ -83,7 +101,7 @@ class Config(dict):  # type: ignore
 
     def get(self, key: str) -> str:  # type: ignore
         # Prioritize environment variables over config file.
-        value = os.getenv(key) or super().get(key)
+        value = get_env(key) or super().get(key)
         if not value:
             raise UsageError(f"Missing config key: {key}")
         return value
