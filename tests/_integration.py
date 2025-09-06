@@ -1,7 +1,7 @@
 """
 This test module will execute real commands using shell.
-This means it will call sgpt.py with command line arguments.
-Make sure you have your API key in place ~/.cfg/shell_gpt/.sgptrc
+This means it will call blus.py with command line arguments.
+Make sure you have your API key in place ~/.cfg/blu-shell/.blusrc
 or ENV variable OPENAI_API_KEY.
 It is useful for quick tests, saves a bit time.
 """
@@ -34,7 +34,7 @@ class TestShellGpt(TestCase):
     def setUpClass(cls):
         # Response streaming should be enabled for these tests.
         assert cfg.get("DISABLE_STREAMING") == "false"
-        # ShellGPT optimised and tested with gpt-4 turbo.
+        # BlueShell optimised and tested with gpt-4 turbo.
         assert cfg.get("DEFAULT_MODEL") == "gpt-4o"
         # Make sure we will not call any functions.
         assert cfg.get("OPENAI_USE_FUNCTIONS") == "false"
@@ -399,7 +399,7 @@ class TestShellGpt(TestCase):
 
     def test_color_output(self):
         color = cfg.get("DEFAULT_COLOR")
-        role = SystemRole.get("ShellGPT")
+        role = SystemRole.get("BlueShell")
         handler = Handler(role=role)
         assert handler.color == color
         os.environ["DEFAULT_COLOR"] = "red"
