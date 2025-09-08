@@ -8,8 +8,8 @@ description = "A command-line productivity tool powered by large language models
 keywords = ["shell", "gpt", "openai", "ollama", "cli", "productivity", "cheet-sheet"]
 readme = "README.md"
 license = "MIT"
-requires-python = ">=3.10"
-authors = [{ name = "Farkhod Sadykov", email = "farkhod@sadykov.dev" }]
+requires-python = ">=3.12"
+authors = [{ name = "Lachlan Walkler" }]
 dynamic = ["version"]
 classifiers = [
     "Operating System :: OS Independent",
@@ -18,10 +18,9 @@ classifiers = [
     "Intended Audience :: Information Technology",
     "Intended Audience :: System Administrators",
     "Intended Audience :: Developers",
-    "Programming Language :: Python :: 3.10",
-    "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
 ]
 dependencies = [
     "openai >= 1.34.0, < 2.0.0",
@@ -56,9 +55,9 @@ dev = [
 blus = "blue_shell:cli"
 
 [project.urls]
-homepage = "https://github.com/ther1d/blu-shell"
-repository = "https://github.com/ther1d/blu-shell"
-documentation = "https://github.com/TheR1D/blu-shell/blob/main/README.md"
+homepage = "https://github.com/lachiewalker/blue-shell"
+repository = "https://github.com/lachiewalker/blue-shell"
+documentation = "https://github.com/lachiewalker/blu-shell/blob/main/README.md"
 
 [tool.hatch.version]
 path = "blue_shell/__version__.py"
