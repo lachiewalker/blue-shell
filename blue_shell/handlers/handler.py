@@ -95,21 +95,41 @@ class Handler:
 
         try:
             for chunk in response:
-                delta = chunk.choices[0].delta
+                choice = (
+                    chunk["choices"][0] if isinstance(chunk, dict) else chunk.choices[0]
+                )
+                delta = (
+                    choice.get("delta") if isinstance(choice, dict) else choice.delta
+                )
 
-                # LiteLLM uses dict instead of Pydantic object like OpenAI does.
                 tool_calls = (
                     delta.get("tool_calls")
-                    if self.client.use_litellm
-                    else delta.tool_calls
+                    if isinstance(delta, dict)
+                    else getattr(delta, "tool_calls", None)
                 )
                 if tool_calls:
                     for tool_call in tool_calls:
-                        if tool_call.function.name:
-                            name = tool_call.function.name
-                        if tool_call.function.arguments:
-                            arguments += tool_call.function.arguments
-                if chunk.choices[0].finish_reason == "tool_calls":
+                        fn = (
+                            tool_call.get("function")
+                            if isinstance(tool_call, dict)
+                            else tool_call.function
+                        )
+                        name = name or (
+                            fn.get("name") if isinstance(fn, dict) else fn.name
+                        )
+                        args_part = (
+                            fn.get("arguments")
+                            if isinstance(fn, dict)
+                            else fn.arguments
+                        )
+                        if args_part:
+                            arguments += args_part
+                finish_reason = (
+                    choice.get("finish_reason")
+                    if isinstance(choice, dict)
+                    else choice.finish_reason
+                )
+                if finish_reason == "tool_calls":
                     yield from self.handle_function_call(messages, name, arguments)
                     yield from self.get_completion(
                         model=model,
@@ -121,7 +141,12 @@ class Handler:
                     )
                     return
 
-                yield delta.content or ""
+                content = (
+                    delta.get("content")
+                    if isinstance(delta, dict)
+                    else getattr(delta, "content", None)
+                )
+                yield content or ""
         except KeyboardInterrupt:
             response.close()
 

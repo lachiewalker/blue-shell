@@ -9,6 +9,8 @@ pip install blu-shell
 ```
 By default, BlueShell uses OpenAI's API and GPT-4 model. You'll need an API key, you can generate one [here](https://beta.openai.com/account/api-keys). You will be prompted for your key which will then be stored in `~/.config/blu-shell/.blusrc`. OpenAI API is not free of charge, please refer to the [OpenAI pricing](https://openai.com/pricing) for more information.
 
+BlueShell also supports switching between models hosted by different providers. Prefix the model name with the provider (for example `openai/gpt-4o`, `anthropic/claude-3-opus`, `mistral/mistral-large`, `bedrock/anthropic.claude-v2`, `openrouter/google/gemini-pro`, `ollama/llama2` or `litellm/gpt-4o`) and supply the corresponding credentials via environment variables such as `BLUS_OPENAI_API_KEY`, `BLUS_ANTHROPIC_API_KEY`, `BLUS_MISTRAL_API_KEY`, `BLUS_OPENROUTER_API_KEY`, `BLUS_LITELLM_API_KEY`/`BLUS_LITELLM_API_BASE`, `BLUS_OLLAMA_API_BASE` or AWS keys for Bedrock.
+
 > [!TIP]
 > Alternatively, you can use locally hosted open source models which are available for free. To use local models, you will need to run your own LLM backend server such as [Ollama](https://github.com/ollama/ollama). To set up BlueShell with Ollama, please follow this comprehensive [guide](https://github.com/TheR1D/blu-shell/wiki/Ollama).
 >
@@ -378,7 +380,8 @@ Next time, same exact query will get results from local cache instantly. Note th
 This is just some examples of what we can do using OpenAI GPT models, I'm sure you will find it useful for your specific use cases.
 
 ### Runtime configuration file
-You can setup some parameters in runtime configuration file `~/.config/blu-shell/.blusrc`:
+You can setup some parameters in runtime configuration file `~/.config/blu-shell/.blusrc`.
+Run `blus config` to interactively add provider credentials and models:
 ```text
 # API key, set via BLUS_OPENAI_API_KEY env (legacy OPENAI_API_KEY is ignored).
 OPENAI_API_KEY=your_api_key
@@ -394,8 +397,10 @@ CACHE_LENGTH=100
 CACHE_PATH=/tmp/blu-shell/cache
 # Request timeout in seconds.
 REQUEST_TIMEOUT=60
-# Default OpenAI model to use.
+# Default model to use. Prefix with provider or rely on DEFAULT_PROVIDER.
 DEFAULT_MODEL=gpt-4o
+# Provider used when model lacks a prefix.
+DEFAULT_PROVIDER=openai
 # Default color for shell and code completions.
 DEFAULT_COLOR=magenta
 # When in --shell mode, default to "Y" for no input.
@@ -410,8 +415,15 @@ OPENAI_FUNCTIONS_PATH=/Users/user/.config/blu-shell/functions
 SHOW_FUNCTIONS_OUTPUT=false
 # Allows LLM to use functions.
 OPENAI_USE_FUNCTIONS=true
-# Enforce LiteLLM usage (for local LLMs).
-USE_LITELLM=false
+# Additional provider API keys
+#ANTHROPIC_API_KEY=
+#MISTRAL_API_KEY=
+#OPENROUTER_API_KEY=
+#LITELLM_API_KEY=
+#LITELLM_API_BASE=
+#AWS_ACCESS_KEY_ID=
+#AWS_SECRET_ACCESS_KEY=
+#AWS_REGION=
 ```
 Possible options for `DEFAULT_COLOR`: black, red, green, yellow, blue, magenta, cyan, white, bright_black, bright_red, bright_green, bright_yellow, bright_blue, bright_magenta, bright_cyan, bright_white.
 Possible options for `CODE_THEME`: https://pygments.org/styles/
@@ -494,7 +506,6 @@ FROM python:3-slim
 
 ENV BLUS_DEFAULT_MODEL=ollama/mistral:7b-instruct-v0.2-q4_K_M
 ENV BLUS_API_BASE_URL=http://10.10.10.10:11434
-ENV BLUS_USE_LITELLM=true
 ENV BLUS_OPENAI_API_KEY=bad_key
 ENV BLUS_SHELL_INTERACTION=false
 ENV BLUS_PRETTIFY_MARKDOWN=false

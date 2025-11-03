@@ -1,5 +1,5 @@
 import warnings
-from sgpt.config import Config, DEFAULT_CONFIG, CACHE_PATH
+from blue_shell.config import Config, DEFAULT_CONFIG, CACHE_PATH
 
 
 def test_prefixed_env(monkeypatch, tmp_path):

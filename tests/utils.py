@@ -1,9 +1,6 @@
 from datetime import datetime
 
 import typer
-from openai.types.chat.chat_completion_chunk import ChatCompletionChunk
-from openai.types.chat.chat_completion_chunk import Choice as StreamChoice
-from openai.types.chat.chat_completion_chunk import ChoiceDelta
 from typer.testing import CliRunner
 
 
@@ -19,8 +16,9 @@ class SGPTRunner(CliRunner):
         kwargs["input"] = input_text
         return super().invoke(*args, **kwargs)
 
-from sgpt import main
-from sgpt.config import cfg
+from blue_shell import main
+from blue_shell.config import cfg
+from types import SimpleNamespace
 
 runner = SGPTRunner()
 app = typer.Typer()
@@ -29,16 +27,16 @@ app.command()(main)
 
 def mock_comp(tokens_string):
     return [
-        ChatCompletionChunk(
+        SimpleNamespace(
             id="foo",
             model=cfg.get("DEFAULT_MODEL"),
             object="chat.completion.chunk",
             choices=[
-                StreamChoice(
+                SimpleNamespace(
                     index=0,
                     finish_reason=None,
-                    delta=ChoiceDelta(content=token, role="assistant"),
-                ),
+                    delta={"content": token, "role": "assistant"},
+                )
             ],
             created=int(datetime.now().timestamp()),
         )
