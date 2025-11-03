@@ -1,4 +1,5 @@
 from typing import Any, Optional
+import sys
 
 import typer
 from rich import print as rich_print
@@ -53,7 +54,13 @@ class ReplHandler(ChatHandler):
         full_completion = ""
         while True:
             # Infinite loop until user exits with Ctrl+C.
-            prompt = typer.prompt(">>>", prompt_suffix=" ")
+            if sys.stdin.isatty():
+                prompt = typer.prompt(">>>", prompt_suffix=" ")
+            else:
+                prompt = sys.stdin.readline().rstrip("\n")
+                if not prompt:
+                    raise typer.Exit()
+                typer.echo(f">>> {prompt}")
             if prompt == '"""':
                 prompt = self._get_multiline_input()
             if prompt == "exit()":

@@ -1,11 +1,11 @@
 import os
+import sys
 
 # To allow users to use arrow keys in the REPL.
 import readline  # noqa: F401
-import sys
 
 import typer
-from click import BadArgumentUsage
+from click import BadArgumentUsage, UsageError
 from click.types import Choice
 from prompt_toolkit import PromptSession
 
@@ -18,11 +18,15 @@ from blue_shell.chat_session import list_chat_ids, show_chat_messages
 from blue_shell.llm_functions.init_functions import install_functions as inst_funcs
 from blue_shell.role import DefaultRoles, SystemRole
 from blue_shell.editor import get_edited_prompt
-from blus.utils.integration import install_shell_integration
+from blue_shell.utils.integration import install_shell_integration
 from blue_shell.shell import run_command
 from blue_shell.utils import get_blus_version
 
 
+cli = typer.Typer()
+
+
+@cli.command()
 def main(
     prompt: str = typer.Argument(
         "",
@@ -154,7 +158,7 @@ def main(
         callback=inst_funcs,
         hidden=True,  # Hiding since should be used only once.
     ),
-) -> None:
+    ) -> None:
     stdin_passed = not sys.stdin.isatty()
 
     if stdin_passed:
@@ -167,21 +171,29 @@ def main(
         # In this case, "hello" will be used as a init prompt, and
         # "This is input" will be used as "interactive" input to the REPL.
         # This is useful to test REPL with some initial context.
+        sentinel_tokens = ("__sgpt__eof__", "__blue_shell__eof__")
+        remaining = ""
         for line in sys.stdin:
-            if "__sgpt__eof__" in line:
+            if any(token in line for token in sentinel_tokens):
+                remaining = sys.stdin.read()
                 break
             stdin += line
         stdin = stdin.rstrip("\n")
         prompt = f"{stdin}\n\n{prompt}" if prompt else stdin
-        try:
-            # Switch to stdin for interactive input.
-            if os.name == "posix":
-                sys.stdin = open("/dev/tty", "r")
-            elif os.name == "nt":
-                sys.stdin = open("CON", "r")
-        except OSError:
-            # Non-interactive shell.
-            pass
+        if remaining:
+            import io
+
+            sys.stdin = io.StringIO(remaining)
+        else:
+            try:
+                # Switch to stdin for interactive input.
+                if os.name == "posix":
+                    sys.stdin = open("/dev/tty", "r")
+                elif os.name == "nt":
+                    sys.stdin = open("CON", "r")
+            except OSError:
+                # Non-interactive shell.
+                pass
 
     if show_chat:
         show_chat_messages(show_chat, md)
@@ -241,13 +253,17 @@ def main(
     session: PromptSession[str] = PromptSession()
 
     while shell and interaction:
-        option = typer.prompt(
-            text="[E]xecute, [M]odify, [D]escribe, [A]bort",
-            type=Choice(("e", "m", "d", "a", "y"), case_sensitive=False),
-            default="e" if cfg.get("DEFAULT_EXECUTE_SHELL_CMD") == "true" else "a",
-            show_choices=False,
-            show_default=False,
-        )
+        if sys.stdin.isatty():
+            option = typer.prompt(
+                text="[E]xecute, [M]odify, [D]escribe, [A]bort",
+                type=Choice(("e", "m", "d", "a", "y"), case_sensitive=False),
+                default="e" if cfg.get("DEFAULT_EXECUTE_SHELL_CMD") == "true" else "a",
+                show_choices=False,
+                show_default=False,
+            )
+        else:
+            typer.echo("[E]xecute, [M]odify, [D]escribe, [A]bort:", nl=False)
+            option = sys.stdin.readline().strip() or "a"
         if option in ("e", "y"):
             # "y" option is for keeping compatibility with old version.
             run_command(full_completion)
@@ -267,8 +283,80 @@ def main(
         break
 
 
+@cli.command("config")
+def configure() -> None:
+    """Interactively update LLM provider settings."""
+
+    def _get(key: str) -> str:
+        try:
+            return cfg.get(key)
+        except UsageError:
+            return ""
+
+    providers = [
+        "openai",
+        "anthropic",
+        "mistral",
+        "bedrock",
+        "openrouter",
+        "ollama",
+        "litellm",
+    ]
+    while True:
+        prov = typer.prompt(
+            "Add model for which provider? ("
+            + ", ".join(providers)
+            + ", quit)",
+            default="quit",
+        ).strip().lower()
+        if prov in ("quit", "q", ""):
+            break
+        if prov not in providers:
+            typer.echo("Unsupported provider")
+            continue
+        model = typer.prompt("Model name")
+        if prov == "openai":
+            api_key = typer.prompt("OpenAI API key", hide_input=True, default=_get("OPENAI_API_KEY"))
+            api_base = typer.prompt("OpenAI API base", default=_get("API_BASE_URL"))
+            cfg.update(OPENAI_API_KEY=api_key, API_BASE_URL=api_base)
+        elif prov == "anthropic":
+            api_key = typer.prompt("Anthropic API key", hide_input=True, default=_get("ANTHROPIC_API_KEY"))
+            cfg.update(ANTHROPIC_API_KEY=api_key)
+        elif prov == "mistral":
+            api_key = typer.prompt("Mistral API key", hide_input=True, default=_get("MISTRAL_API_KEY"))
+            cfg.update(MISTRAL_API_KEY=api_key)
+        elif prov == "openrouter":
+            api_key = typer.prompt("OpenRouter API key", hide_input=True, default=_get("OPENROUTER_API_KEY"))
+            cfg.update(OPENROUTER_API_KEY=api_key)
+        elif prov == "ollama":
+            api_base = typer.prompt("Ollama API base", default=_get("OLLAMA_API_BASE"))
+            api_key = typer.prompt("Ollama API key", hide_input=True, default=_get("OLLAMA_API_KEY"))
+            cfg.update(OLLAMA_API_BASE=api_base, OLLAMA_API_KEY=api_key)
+        elif prov == "litellm":
+            api_key = typer.prompt("LiteLLM API key", hide_input=True, default=_get("LITELLM_API_KEY"))
+            api_base = typer.prompt("LiteLLM API base", default=_get("LITELLM_API_BASE"))
+            cfg.update(LITELLM_API_KEY=api_key, LITELLM_API_BASE=api_base)
+        elif prov == "bedrock":
+            access_key = typer.prompt("AWS Access Key ID", default=_get("AWS_ACCESS_KEY_ID"))
+            secret_key = typer.prompt(
+                "AWS Secret Access Key", hide_input=True, default=_get("AWS_SECRET_ACCESS_KEY")
+            )
+            region = typer.prompt("AWS Region", default=_get("AWS_REGION"))
+            cfg.update(
+                AWS_ACCESS_KEY_ID=access_key,
+                AWS_SECRET_ACCESS_KEY=secret_key,
+                AWS_REGION=region,
+            )
+        model_path = f"{prov}/{model}"
+        cfg.add_model(model_path)
+        if typer.confirm("Set as default model?", default=False):
+            cfg.update(DEFAULT_MODEL=model_path, DEFAULT_PROVIDER=prov)
+        if not typer.confirm("Add another model?", default=True):
+            break
+
+
 def entry_point() -> None:
-    typer.run(main)
+    cli()
 
 
 if __name__ == "__main__":

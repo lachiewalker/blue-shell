@@ -4,7 +4,7 @@ from typing import Any
 import typer
 from click import UsageError
 
-from sgpt.integration import bash_integration, zsh_integration
+from blue_shell.integration import bash_integration, zsh_integration
 from . import option_callback
 
 
@@ -21,6 +21,6 @@ def install_shell_integration(*_args: Any) -> None:
         with open(os.path.expanduser("~/.bashrc"), "a", encoding="utf-8") as file:
             file.write(bash_integration)
     else:
-        raise UsageError("ShellGPT integrations only available for ZSH and Bash.")
+        raise UsageError("BlueShell integrations only available for ZSH and Bash.")
 
     typer.echo("Done! Restart your shell to apply changes.")
