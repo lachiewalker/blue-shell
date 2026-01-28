@@ -4,7 +4,7 @@ from typing import Any
 import typer
 from click import UsageError
 
-from sgpt.integration import bash_integration, zsh_integration
+from blue_shell.integration import bash_integration, zsh_integration
 from . import option_callback
 
 

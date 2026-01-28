@@ -53,7 +53,8 @@ class ChatSession:
         truncated_messages = (
             messages[:1] + messages[1 + max(0, len(messages) - self.length) :]
         )
-        json.dump(truncated_messages, file_path.open("w"))
+        with file_path.open("w") as f:
+            json.dump(truncated_messages, f)
 
     def invalidate(self, chat_id: str) -> None:
         file_path = self.storage_path / chat_id

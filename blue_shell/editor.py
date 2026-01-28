@@ -1,4 +1,5 @@
 import os
+import subprocess
 from tempfile import NamedTemporaryFile
 
 from click import BadParameter
@@ -9,7 +10,7 @@ def get_edited_prompt() -> str:
     with NamedTemporaryFile(suffix=".txt", delete=False) as file:
         file_path = file.name
     editor = os.environ.get("EDITOR", "vim")
-    os.system(f"{editor} {file_path}")
+    subprocess.run([editor, file_path], check=False)
     with open(file_path, "r", encoding="utf-8") as file:
         output = file.read()
     os.remove(file_path)

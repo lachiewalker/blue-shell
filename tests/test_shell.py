@@ -15,7 +15,7 @@ def test_shell(completion):
     completion.return_value = mock_comp("git commit -m test")
 
     args = {"prompt": "make a commit using git", "--shell": True}
-    result = runner.invoke(app, cmd_args(**args), input="__sgpt__eof__\na\n")
+    result = runner.invoke(app, cmd_args(**args), input="__blus_eof__\na\n")
 
     completion.assert_called_once_with(**comp_args(role, args["prompt"]))
     assert result.exit_code == 0
@@ -30,7 +30,7 @@ def test_shell_no_markdown(completion, markdown_printer, text_printer):
     completion.return_value = mock_comp("git commit -m test")
 
     args = {"prompt": "make a commit using git", "--shell": True, "--md": True}
-    result = runner.invoke(app, cmd_args(**args), input="__sgpt__eof__\na\n")
+    result = runner.invoke(app, cmd_args(**args), input="__blus_eof__\na\n")
 
     assert result.exit_code == 0
     # Should ignore --md for --shell option and output text without markdown.
@@ -45,7 +45,7 @@ def test_shell_stdin(completion):
 
     args = {"prompt": "Sort by name", "--shell": True}
     stdin = "What is in current folder"
-    result = runner.invoke(app, cmd_args(**args), input=f"{stdin}\n__sgpt__eof__\na\n")
+    result = runner.invoke(app, cmd_args(**args), input=f"{stdin}\n__blus_eof__\na\n")
 
     expected_prompt = f"{stdin}\n\n{args['prompt']}"
     completion.assert_called_once_with(**comp_args(role, expected_prompt))
@@ -60,7 +60,7 @@ def test_describe_shell(completion):
     role = SystemRole.get(DefaultRoles.DESCRIBE_SHELL.value)
 
     args = {"prompt": "ls", "--describe-shell": True}
-    result = runner.invoke(app, cmd_args(**args), input="__sgpt__eof__\na\n")
+    result = runner.invoke(app, cmd_args(**args), input="__blus_eof__\na\n")
 
     completion.assert_called_once_with(**comp_args(role, args["prompt"]))
     assert result.exit_code == 0
@@ -87,7 +87,7 @@ def test_describe_shell_stdin(completion):
 def test_shell_run_description(completion, system):
     completion.side_effect = [mock_comp("echo hello"), mock_comp("prints hello")]
     args = {"prompt": "echo hello", "--shell": True}
-    inputs = "__blue_shell__eof__\nd\ne\n"
+    inputs = "__blus_eof__\nd\ne\n"
     result = runner.invoke(app, cmd_args(**args), input=inputs)
     shell = os.environ.get("SHELL", "/bin/sh")
     system.assert_called_once_with(f"{shell} -c 'echo hello'")
@@ -105,13 +105,13 @@ def test_shell_chat(completion):
     invalidate_chat(chat_name)
 
     args = {"prompt": "list folder", "--shell": True, "--chat": chat_name}
-    result = runner.invoke(app, cmd_args(**args), input="__sgpt__eof__\na\n")
+    result = runner.invoke(app, cmd_args(**args), input="__blus_eof__\na\n")
     assert result.exit_code == 0
     assert "ls" in result.stdout
     assert chat_path.exists()
 
     args["prompt"] = "sort by name"
-    result = runner.invoke(app, cmd_args(**args), input="__sgpt__eof__\na\n")
+    result = runner.invoke(app, cmd_args(**args), input="__blus_eof__\na\n")
     assert result.exit_code == 0
     assert "ls | sort" in result.stdout
 
@@ -144,7 +144,7 @@ def test_shell_repl(completion, mock_system):
     invalidate_chat(chat_name)
 
     args = {"--repl": chat_name, "--shell": True}
-    inputs = ["__blue_shell__eof__", "list folder", "sort by name", "e", "exit()"]
+    inputs = ["__blus_eof__", "list folder", "sort by name", "e", "exit()"]
     result = runner.invoke(app, cmd_args(**args), input="\n".join(inputs))
     shell = os.environ.get("SHELL", "/bin/sh")
     mock_system.assert_called_once_with(f"{shell} -c 'ls | sort'")

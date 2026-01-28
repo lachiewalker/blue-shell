@@ -136,7 +136,7 @@ def test_default_repl(completion):
     invalidate_chat(chat_name)
 
     args = {"--repl": chat_name}
-    inputs = ["__blue_shell__eof__", "my number is 6", "my number + 2?", "exit()"]
+    inputs = ["__blus_eof__", "my number is 6", "my number + 2?", "exit()"]
     result = runner.invoke(app, cmd_args(**args), input="\n".join(inputs))
 
     expected_messages = [
@@ -169,7 +169,7 @@ def test_default_repl_stdin(completion):
     my_app.command()(main)
 
     args = {"--repl": chat_name}
-    inputs = ["this is stdin", "__blue_shell__eof__", "prompt", "another", "exit()"]
+    inputs = ["this is stdin", "__blus_eof__", "prompt", "another", "exit()"]
     result = my_runner.invoke(my_app, cmd_args(**args), input="\n".join(inputs))
 
     expected_messages = [
