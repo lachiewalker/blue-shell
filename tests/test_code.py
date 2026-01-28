@@ -104,7 +104,7 @@ def test_code_repl(completion):
     invalidate_chat(chat_name)
 
     args = {"--repl": chat_name, "--code": True}
-    inputs = ["__blue_shell__eof__", "print hello", "also print world", "exit()"]
+    inputs = ["__blus_eof__", "print hello", "also print world", "exit()"]
     result = runner.invoke(app, cmd_args(**args), input="\n".join(inputs))
 
     expected_messages = [

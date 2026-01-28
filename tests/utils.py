@@ -12,15 +12,15 @@ class SGPTRunner(CliRunner):
 
     def invoke(self, *args, **kwargs):  # type: ignore[override]
         input_text = kwargs.get("input", "")
-        if "__sgpt__eof__" not in input_text:
+        if "__blus_eof__" not in input_text:
             if not input_text.endswith("\n"):
                 input_text += "\n"
-            input_text += "__sgpt__eof__\n"
+            input_text += "__blus_eof__\n"
         kwargs["input"] = input_text
         return super().invoke(*args, **kwargs)
 
-from sgpt import main
-from sgpt.config import cfg
+from blue_shell.app import main
+from blue_shell.config import cfg
 
 runner = SGPTRunner()
 app = typer.Typer()

@@ -1,7 +1,8 @@
-from typing import Any, Dict, Generator, List
+from typing import Any, Dict, Generator, List, Optional
 
 from click import BadArgumentUsage
 
+from ..llm_client import LLMClient
 from ..role import DefaultRoles, SystemRole
 from .handler import Handler
 from ..chat_session import (
@@ -14,8 +15,8 @@ from ..chat_session import (
 class ChatHandler(Handler):
     chat_session = chat_session
 
-    def __init__(self, chat_id: str, role: SystemRole, markdown: bool) -> None:
-        super().__init__(role, markdown)
+    def __init__(self, chat_id: str, role: SystemRole, markdown: bool, client: Optional[LLMClient] = None) -> None:
+        super().__init__(role, markdown, client)
         self.chat_id = chat_id
         self.role = role
 

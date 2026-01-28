@@ -38,7 +38,7 @@ DEFAULT_CONFIG = {
     "CHAT_CACHE_PATH": get_env("CHAT_CACHE_PATH", str(CHAT_CACHE_PATH)),
     "CACHE_PATH": get_env("CACHE_PATH", str(CACHE_PATH)),
     "CHAT_CACHE_LENGTH": int(get_env("CHAT_CACHE_LENGTH", "100")),
-    "CACHE_LENGTH": int(get_env("CHAT_CACHE_LENGTH", "100")),
+    "CACHE_LENGTH": int(get_env("CACHE_LENGTH", "100")),
     "REQUEST_TIMEOUT": int(get_env("REQUEST_TIMEOUT", "60")),
     "DEFAULT_MODEL": get_env("DEFAULT_MODEL", "gpt-4o"),
     "DEFAULT_COLOR": get_env("DEFAULT_COLOR", "magenta"),

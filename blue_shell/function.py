@@ -1,8 +1,9 @@
 import importlib.util
 import sys
-from abc import ABCMeta
 from pathlib import Path
 from typing import Any, Callable, Dict, List
+
+from pydantic import BaseModel
 
 from .config import cfg
 
@@ -34,7 +35,7 @@ class Function:
         sys.modules[module_name] = module
         spec.loader.exec_module(module)  # type: ignore
 
-        if not isinstance(module.Function, ABCMeta):
+        if not (isinstance(module.Function, type) and issubclass(module.Function, BaseModel)):
             raise TypeError(
                 f"Function {module_name} must be a subclass of pydantic.BaseModel"
             )

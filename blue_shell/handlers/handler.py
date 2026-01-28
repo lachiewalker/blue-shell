@@ -53,11 +53,18 @@ class Handler:
         if messages and messages[-1]["role"] == "assistant":
             yield "\n"
 
-        dict_args = json.loads(arguments)
+        try:
+            dict_args = json.loads(arguments)
+        except json.JSONDecodeError:
+            yield f"> @FunctionCall `{name}` failed: invalid JSON arguments\n\n"
+            return
         joined_args = ", ".join(f'{k}="{v}"' for k, v in dict_args.items())
         yield f"> @FunctionCall `{name}({joined_args})` \n\n"
 
-        result = get_function(name)(**dict_args)
+        try:
+            result = get_function(name)(**dict_args)
+        except (ValueError, TypeError) as e:
+            result = f"Function call failed: {e}"
         if cfg.get("SHOW_FUNCTIONS_OUTPUT") == "true":
             yield f"```text\n{result}\n```\n"
         messages.append({"role": "function", "content": result, "name": name})

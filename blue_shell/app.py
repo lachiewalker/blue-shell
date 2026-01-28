@@ -18,7 +18,7 @@ from blue_shell.chat_session import list_chat_ids, show_chat_messages
 from blue_shell.llm_functions.init_functions import install_functions as inst_funcs
 from blue_shell.role import DefaultRoles, SystemRole
 from blue_shell.editor import get_edited_prompt
-from blus.utils.integration import install_shell_integration
+from blue_shell.utils.integration import install_shell_integration
 from blue_shell.shell import run_command
 from blue_shell.utils import get_blus_version
 
@@ -77,6 +77,7 @@ def main(
     ),
     functions: bool = typer.Option(
         cfg.get("OPENAI_USE_FUNCTIONS") == "true",
+        "--functions/--no-functions",
         help="Allow function calls.",
         rich_help_panel="Assistance Options",
     ),
@@ -86,6 +87,7 @@ def main(
     ),
     cache: bool = typer.Option(
         True,
+        "--cache/--no-cache",
         help="Cache completion results.",
     ),
     version: bool = typer.Option(
@@ -163,12 +165,12 @@ def main(
         # In some cases, we need to pass stdin along with inputs.
         # When we want part of stdin to be used as a init prompt,
         # but rest of the stdin to be used as a inputs. For example:
-        # echo "hello\n__sgpt__eof__\nThis is input" | blus --repl temp
+        # echo "hello\n__blus_eof__\nThis is input" | blus --repl temp
         # In this case, "hello" will be used as a init prompt, and
         # "This is input" will be used as "interactive" input to the REPL.
         # This is useful to test REPL with some initial context.
         for line in sys.stdin:
-            if "__sgpt__eof__" in line:
+            if "__blus_eof__" in line:
                 break
             stdin += line
         stdin = stdin.rstrip("\n")
